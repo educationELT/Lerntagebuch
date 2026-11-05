@@ -38,7 +38,7 @@ input,select,textarea{border:1px solid #cbd6e5;border-radius:10px;padding:10px 1
 .dictrow{display:flex;gap:8px;flex-wrap:wrap}.dictrow input{flex:1 1 220px;min-width:0}.dictrow a{text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap}.dictrow a[aria-disabled="true"]{opacity:.5;pointer-events:none}
 .brandwrap{display:flex;align-items:center;gap:12px}.logo{height:56px;width:auto;flex:none;filter:drop-shadow(0 2px 3px #19335922)}@media(max-width:760px){.logo{height:46px}}
 .report{border:1px solid #b9cdf2;background:#f3f8ff}.allowed{margin:0 0 14px;font-size:.92rem}.btn.big{display:inline-flex;align-items:center;justify-content:center;width:100%;padding:16px;font-size:1.08rem;text-decoration:none;border-radius:12px}
-.goalchips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}.goalchip{display:inline-flex;align-items:center;gap:6px;background:#e7f0ff;border:1px solid #6388dc;border-radius:999px;padding:6px 6px 6px 12px;font-size:.88rem}.chipx{border:none;background:#fff;border-radius:50%;width:24px;height:24px;line-height:24px;padding:0;color:#a32d35;font-weight:800}.goalgroup{margin:0 0 12px}.goalhead{font-size:.8rem;font-weight:800;color:#5074a5;margin:0 0 6px}.goalin{width:110px;padding:4px 8px;margin-left:4px;font-size:.88rem;border-radius:8px}
+.stars{display:flex;gap:6px;margin:0 0 14px}.star{font-size:2rem;line-height:1;color:#cfd8e6;cursor:pointer;padding:2px}.star.on{color:#e0a526}.star input{position:absolute;opacity:0;width:1px;height:1px}.star:has(input:focus-visible){outline:2px solid #a5c4ff;border-radius:6px}.goalchips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}.goalchip{display:inline-flex;align-items:center;gap:6px;background:#e7f0ff;border:1px solid #6388dc;border-radius:999px;padding:6px 6px 6px 12px;font-size:.88rem}.chipx{border:none;background:#fff;border-radius:50%;width:24px;height:24px;line-height:24px;padding:0;color:#a32d35;font-weight:800}.goalgroup{margin:0 0 12px}.goalhead{font-size:.8rem;font-weight:800;color:#5074a5;margin:0 0 6px}.goalin{width:110px;padding:4px 8px;margin-left:4px;font-size:.88rem;border-radius:8px}
 .footer{margin:28px 0;color:#778399;font-size:.8rem}
 @media(max-width:760px){.grid{grid-template-columns:1fr}.panel{padding:15px}.brand{font-size:1.3rem}.btn{padding:9px 11px}.calday{min-height:41px}}
 @media(prefers-reduced-motion:no-preference){.toast{animation:pop .2s ease-out}@keyframes pop{from{opacity:0;transform:translate(-50%,8px)}}}
@@ -457,7 +457,7 @@ const KEY='ltb_schueler_v1';
 const TASKS=['Reading','Core tasks (must do)','Choice tasks (may do)','Pick one','Vocab','Revision / Practice','Speaking','Writing','Viewing'];
 const ROOMS=['Klassenraum','Gruppenraum','Sitzinsel','Forum','Mensa','Bibliothek','Raum'];
 const MOODS=[['motivated','🚀 I\'m motivated and ready to go!'],['good','😊 I\'m feeling good and ready to work.'],['tired','😴 I\'m a bit tired, but I\'ll give it a try.'],['help','🙋 I could use some help today.'],['overwhelmed','😟 I\'m feeling a bit overwhelmed.']];
-const REFLECTIONS=[['growth','Tracking Your Growth'],['emoji','My Learning Emoji'],['keywords','Three Keywords'],['everyday','Connection to Your Everyday Life']];
+const REFLECTIONS=[['growth','Tracking Your Growth'],['emoji','My Learning Emoji'],['keywords','Three Keywords'],['everyday','Connection to Your Everyday Life'],['confidence','Confidence Check'],['word','Word of the Day']];
 const PLANTS=['Not started yet','Just beginning','Growing','Making great progress'];
 const EMOJIS=[['😊','I felt good'],['💪','I worked hard'],['💡','I understood something new'],['🤩','It was fun'],['🤔','I still have questions'],['🐢','Slow but steady'],['😵‍💫','It was confusing'],['🎯','I reached my goal'],['🤝','Teamwork helped me'],['🧗','Hard, but I kept going'],['🤓','I felt really smart'],['📖','I did a lot of reading'],['✍️','I did a lot of writing'],['🗣️🇺🇸','I practiced speaking English']];
 const FLAG_US=(()=>{let st='';for(let i=0;i<13;i++)st+=`<rect y="${i*10/13}" width="19" height="${10/13+.01}" fill="${i%2?'#fff':'#b22234'}"/>`;let d='';for(let r=0;r<4;r++)for(let c=0;c<5;c++)d+=`<circle cx="${.9+c*1.6+(r%2)*.8}" cy="${.8+r*1.25}" r=".32" fill="#fff"/>`;return `<svg viewBox="0 0 19 10" width="26" height="14" role="img" aria-label="USA" style="vertical-align:-1px;border-radius:2px;box-shadow:0 0 0 .5px #0002">${st}<rect width="7.6" height="5.38" fill="#3c3b6e"/>${d}</svg>`})();
@@ -504,6 +504,8 @@ function coinsFor(r){let c=0;const t=x=>words(x)>=3?10:0,x=r.exit||{};
   if(v==='growth')c+=(x.growth!==undefined&&x.growth!==''?10:0)+t(x.detail);
   else if(v==='emoji')c+=(x.emoji?10:0)+t(x.detail);
   else if(v==='keywords'){const n=(x.keywords||[]).filter(k=>String(k).trim()).length;c+=n===3?20:n?10:0}
+  else if(v==='confidence'){c+=(x.stars?10:0)+(words(x.detail)>=2?10:0)}
+  else if(v==='word'){c+=(String(x.word||'').trim()?10:0)+(String(x.meaning||'').trim()?10:0)}
   else c+=words(x.detail)>=3?20:0;
   return c}
 function totalCoins(){return records().reduce((a,r)=>a+coinsFor(r),0)}
@@ -528,6 +530,8 @@ function reflectionRows(r){const x=r.exit||{},v=x.reflection||'growth',rows=[['R
   if(v==='growth'){rows.push(['Plant',x.growth!==undefined&&x.growth!==''?PLANTS[Number(x.growth)]:'—'],['Why this plant?',x.detail||'—'])}
   else if(v==='emoji'){const e=EMOJIS.find(a=>a[0]===x.emoji);rows.push(['Emoji',e?`${e[0]} ${e[1]}`:(x.emoji||'—')],['Why?',x.detail||'—'])}
   else if(v==='keywords'){rows.push(['Keywords',(x.keywords||[]).filter(Boolean).join(', ')||'—'])}
+  else if(v==='confidence'){rows.push(['How confident do I feel about today’s work?',x.stars?'★'.repeat(x.stars)+'☆'.repeat(5-x.stars)+` (${x.stars}/5)`:'—'],['I’m proud that I … today.',x.detail||'—'])}
+  else if(v==='word'){rows.push(['New word',x.word||'—'],['Meaning',x.meaning||'—'])}
   else rows.push(['Connection to everyday life',x.detail||'—']);return rows}
 function sessionSections(r){return [
   {title:'Check-in',rows:[...(r.checkin?.stop?[['Where did I stop last time?',r.checkin.stop]]:[]),['My goals for today',goalText(r)||'—'],['Mood',MOODS.find(m=>m[0]===r.checkin?.mood)?.[1]||'—'],['I need help with',r.checkin?.help||'—']]},
@@ -599,6 +603,8 @@ function plantSvg(n){let stem=n?`<path d="M45 77 V${n===1?57:n===2?39:20}" strok
 function reflectionArea(r){const x=r.exit||{},v=x.reflection||'growth';
   if(v==='growth')return `<p><strong>Which plant best represents your learning progress today?</strong></p><div class="plantgrid">${PLANTS.map((l,i)=>`<label class="plantchoice" title="${esc(l)}"><input type="radio" name="growth" data-action="growth" value="${i}" aria-label="${esc(l)}" ${String(x.growth??'')===String(i)?'checked':''}>${plantSvg(i)}<span>${esc(l)}</span></label>`).join('')}</div>${textArea('Why did you choose this plant?','exit.detail',x.detail)}`;
   if(v==='emoji')return `<p><strong>Which emoji best describes your learning today?</strong></p><div class="choicegrid">${EMOJIS.map(([e,l])=>`<label class="pill"><input type="radio" name="emoji" data-action="emoji" value="${e}" aria-label="${esc(l)}" ${x.emoji===e?'checked':''}><span style="font-size:1.25rem;display:inline-flex;align-items:center;gap:3px">${showEmoji(e)}</span></label>`).join('')}</div>${textArea('Explain your choice.','exit.detail',x.detail)}`;
+  if(v==='confidence')return `<p><strong>How confident do I feel about today’s work?</strong></p><div class="stars" role="radiogroup" aria-label="Confidence">${[1,2,3,4,5].map(n=>`<label class="star ${Number(x.stars)>=n?'on':''}"><input type="radio" name="stars" data-action="stars" value="${n}" aria-label="${n} of 5" ${Number(x.stars)===n?'checked':''}>★</label>`).join('')}</div>${textArea('I’m proud that I … today.','exit.detail',x.detail).replace('placeholder="Write your answer here…"','placeholder="e.g. finished task 4 / spoke English the whole time"')}`;
+  if(v==='word')return `<div class="grid"><div class="field"><label for="wordIn">New word</label><input id="wordIn" data-exit="word" maxlength="60" placeholder="e.g. responsibility" value="${esc(x.word||'')}"></div><div class="field"><label for="meaningIn">Meaning</label><input id="meaningIn" data-exit="meaning" maxlength="120" placeholder="e.g. Verantwortung" value="${esc(x.meaning||'')}"></div></div>`;
   if(v==='keywords')return `<p><strong>Write down three keywords that capture what you learned or worked on today.</strong></p>${[0,1,2].map(i=>`<div class="field"><label for="kw${i}">Keyword ${i+1}</label><input id="kw${i}" data-keyword="${i}" value="${esc((x.keywords||[])[i]||'')}"></div>`).join('')}`;
   return textArea('How does something you learned today connect to your everyday life?','exit.detail',x.detail)}
 function calendar(month,day){let [y,m]=month.split('-').map(Number),first=(new Date(y,m-1,1).getDay()+6)%7,count=new Date(y,m,0).getDate(),has=new Set(records().map(r=>r.date));let h=`<div class="inline" style="justify-content:space-between;margin-bottom:10px"><button class="btn" data-action="monthPrev" aria-label="Vorheriger Monat">‹</button><strong>${new Date(y,m-1,1).toLocaleDateString('de-DE',{month:'long',year:'numeric'})}</strong><button class="btn" data-action="monthNext" aria-label="Nächster Monat">›</button></div><div class="calendar">${['Mo','Di','Mi','Do','Fr','Sa','So'].map(x=>`<div class="calhead">${x}</div>`).join('')}${'<div class="calblank"></div>'.repeat(first)}`;for(let d=1;d<=count;d++){let iso=`${month}-${String(d).padStart(2,'0')}`;h+=`<button class="calday ${day===iso?'selected':''} ${has.has(iso)?'marked':''}" data-action="calDay" data-date="${iso}" aria-label="${deDate(iso)}">${d}</button>`}return h+'</div>'}
@@ -646,6 +652,7 @@ function act(a,e){const r=currentRecord(),v=e.value;
   if(a==='exitGoal'){r.exit??={};r.exit.goal=v;persist();return}
   if(a==='reflection'){r.exit??={};r.exit.reflection=v;r.exit.detail='';persist();render();return}
   if(a==='growth'||a==='emoji'){r.exit??={};r.exit[a]=v;persist();return}
+  if(a==='stars'){r.exit??={};r.exit.stars=Number(v);persist();document.querySelectorAll('.star').forEach((l,i)=>l.classList.toggle('on',i<Number(v)));return}
   if(a==='finish'){if(!r.exit?.goal){notify('Please select whether you achieved your goal.',true);return}r.exit.finishedAt=new Date().toISOString();persist();render();notify('Exit ticket gespeichert! Vergiss nicht, es abzugeben.');return}}
 function updatePreview(){const p=document.getElementById('msgPreview');if(p)p.textContent=locationMessage()}
 
@@ -659,6 +666,7 @@ app.addEventListener('input',e=>{const t=e.target;
   else if(t.dataset.goalin){const r=currentRecord();if(r){r.checkin??={};r.checkin.goals??={};r.checkin.goals[t.dataset.goalin]=t.value;persist()}}
   else if(t.dataset.page){const r=currentRecord();if(r){r.page=t.value;persist()}}
   else if(t.dataset.notes){const r=currentRecord();if(r){r.notes=t.value;persist()}}
+  else if(t.dataset.exit){const r=currentRecord();if(r){r.exit??={};r.exit[t.dataset.exit]=t.value;persist()}}
   else if(t.dataset.keyword){const r=currentRecord();if(r){r.exit??={};r.exit.keywords??=['','',''];r.exit.keywords[Number(t.dataset.keyword)]=t.value;persist()}}
   else if(t.dataset.live)act(t.dataset.action,t)});
 (function oneSessionPerDay(){const byDay={};for(const r of st.records||[]){(byDay[r.date]??=[]).push(r)}let removed=0;
