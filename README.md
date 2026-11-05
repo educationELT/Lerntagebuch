@@ -1,4 +1,4 @@
-# 📘 Klassenlerntagebuch
+# 📘 Progress Planner
 
 Ein digitales Lerntagebuch für den Unterricht – zum Planen, Arbeiten und Reflektieren.
 
